@@ -40,8 +40,7 @@ jobs:
       - name: Generate files
         run: |
           dart run build_runner build --delete-conflicting-outputs
-          dart pub global activate flutter_gen
-          fluttergen
+          dart run flutter_gen
 
       - name: Build APK
         run: |
