@@ -66,6 +66,23 @@ subprojects { project ->
             configureNamespace()
         }
     }
+
+    project.tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    project.tasks.configureEach { task ->
+        if (task.class.name.contains("KotlinCompile")) {
+            try {
+                task.kotlinOptions {
+                    jvmTarget = "17"
+                }
+            } catch (Throwable t) {
+                // Ignore
+            }
+        }
+    }
 }
 
 tasks.register("clean", Delete) {
