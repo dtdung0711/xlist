@@ -48,7 +48,8 @@ jobs:
             --release \
             --no-tree-shake-icons \
             --obfuscate \
-            --split-debug-info=./symbols
+            --split-debug-info=./symbols \
+            --android-skip-build-dependency-validation
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
