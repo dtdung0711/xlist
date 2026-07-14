@@ -28,6 +28,33 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    try {
+                        def manifestFile = project.file("src/main/AndroidManifest.xml")
+                        if (manifestFile.exists()) {
+                            def manifest = new XmlParser().parse(manifestFile)
+                            def packageName = manifest.attribute("package")
+                            if (packageName != null) {
+                                namespace packageName
+                            } else {
+                                namespace project.group
+                            }
+                        } else {
+                            namespace project.group
+                        }
+                    } catch (Exception e) {
+                        namespace project.group
+                    }
+                }
+            }
+        }
+    }
+}
+
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
