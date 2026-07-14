@@ -59,29 +59,35 @@ subprojects { project ->
         }
     }
 
-    if (project.state.executed) {
-        configureNamespace()
-    } else {
-        project.afterEvaluate {
-            configureNamespace()
+    def configureJvmTarget = {
+        if (project.hasProperty('android')) {
+            try {
+                project.android {
+                    compileOptions {
+                        sourceCompatibility = JavaVersion.VERSION_17
+                        targetCompatibility = JavaVersion.VERSION_17
+                    }
+                    try {
+                        kotlinOptions {
+                            jvmTarget = '17'
+                        }
+                    } catch (Throwable t) {
+                        // Ignore
+                    }
+                }
+            } catch (Throwable t) {
+                // Ignore
+            }
         }
     }
 
-    project.afterEvaluate {
-        if (project.hasProperty('android')) {
-            project.android {
-                compileOptions {
-                    sourceCompatibility = JavaVersion.VERSION_17
-                    targetCompatibility = JavaVersion.VERSION_17
-                }
-                try {
-                    kotlinOptions {
-                        jvmTarget = '17'
-                    }
-                } catch (Throwable t) {
-                    // Ignore
-                }
-            }
+    if (project.state.executed) {
+        configureNamespace()
+        configureJvmTarget()
+    } else {
+        project.afterEvaluate {
+            configureNamespace()
+            configureJvmTarget()
         }
     }
 }
