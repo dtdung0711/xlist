@@ -33,21 +33,27 @@ subprojects {
         if (project.hasProperty('android')) {
             project.android {
                 if (namespace == null) {
+                    def fallbackNamespace = "io.xlist.generated." + project.name.replaceAll("-", ".").replaceAll("_", ".")
                     try {
                         def manifestFile = project.file("src/main/AndroidManifest.xml")
                         if (manifestFile.exists()) {
-                            def manifest = new XmlParser().parse(manifestFile)
-                            def packageName = manifest.attribute("package")
-                            if (packageName != null) {
-                                namespace packageName
+                            def contents = manifestFile.text
+                            def matcher = java.util.regex.Pattern.compile("package=\"([^\"]+)\"").matcher(contents)
+                            if (matcher.find()) {
+                                def pkg = matcher.group(1)
+                                if (pkg != null && !pkg.trim().isEmpty()) {
+                                    namespace pkg
+                                } else {
+                                    namespace fallbackNamespace
+                                }
                             } else {
-                                namespace project.group
+                                namespace fallbackNamespace
                             }
                         } else {
-                            namespace project.group
+                            namespace fallbackNamespace
                         }
                     } catch (Exception e) {
-                        namespace project.group
+                        namespace fallbackNamespace
                     }
                 }
             }
