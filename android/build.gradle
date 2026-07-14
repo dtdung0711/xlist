@@ -28,8 +28,8 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-subprojects {
-    afterEvaluate { project ->
+subprojects { project ->
+    def configureNamespace = {
         if (project.hasProperty('android')) {
             try {
                 def android = project.android
@@ -56,6 +56,14 @@ subprojects {
             } catch (Throwable t) {
                 // Ignore any property access errors or other issues to prevent crashing build configuration
             }
+        }
+    }
+
+    if (project.state.executed) {
+        configureNamespace()
+    } else {
+        project.afterEvaluate {
+            configureNamespace()
         }
     }
 }
