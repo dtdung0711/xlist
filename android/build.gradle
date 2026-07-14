@@ -67,19 +67,20 @@ subprojects { project ->
         }
     }
 
-    project.tasks.withType(JavaCompile).configureEach {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    project.tasks.configureEach { task ->
-        if (task.class.name.contains("KotlinCompile")) {
-            try {
-                task.kotlinOptions {
-                    jvmTarget = "17"
+    project.afterEvaluate {
+        if (project.hasProperty('android')) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_17
+                    targetCompatibility = JavaVersion.VERSION_17
                 }
-            } catch (Throwable t) {
-                // Ignore
+                try {
+                    kotlinOptions {
+                        jvmTarget = '17'
+                    }
+                } catch (Throwable t) {
+                    // Ignore
+                }
             }
         }
     }
