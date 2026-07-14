@@ -31,31 +31,30 @@ subprojects {
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
-            project.android {
-                if (namespace == null) {
+            try {
+                def android = project.android
+                if (android.namespace == null || android.namespace.trim().isEmpty()) {
                     def fallbackNamespace = "io.xlist.generated." + project.name.replaceAll("-", ".").replaceAll("_", ".")
-                    try {
-                        def manifestFile = project.file("src/main/AndroidManifest.xml")
-                        if (manifestFile.exists()) {
-                            def contents = manifestFile.text
-                            def matcher = java.util.regex.Pattern.compile("package=\"([^\"]+)\"").matcher(contents)
-                            if (matcher.find()) {
-                                def pkg = matcher.group(1)
-                                if (pkg != null && !pkg.trim().isEmpty()) {
-                                    namespace pkg
-                                } else {
-                                    namespace fallbackNamespace
-                                }
+                    def manifestFile = project.file("src/main/AndroidManifest.xml")
+                    if (manifestFile.exists()) {
+                        def contents = manifestFile.text
+                        def matcher = java.util.regex.Pattern.compile("package=\"([^\"]+)\"").matcher(contents)
+                        if (matcher.find()) {
+                            def pkg = matcher.group(1)
+                            if (pkg != null && !pkg.trim().isEmpty()) {
+                                android.namespace = pkg
                             } else {
-                                namespace fallbackNamespace
+                                android.namespace = fallbackNamespace
                             }
                         } else {
-                            namespace fallbackNamespace
+                            android.namespace = fallbackNamespace
                         }
-                    } catch (Exception e) {
-                        namespace fallbackNamespace
+                    } else {
+                        android.namespace = fallbackNamespace
                     }
                 }
+            } catch (Throwable t) {
+                // Ignore any property access errors or other issues to prevent crashing build configuration
             }
         }
     }
